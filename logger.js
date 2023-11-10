@@ -34,13 +34,28 @@ var path = require('path'),
 
 var makeArray = function(nonarray) { 
   return Array.prototype.slice.call(nonarray); 
-};
+
+  
+}
+
+function fmtDate(d) {
+  let year = d.getFullYear();
+  let month = ("0" + (d.getMonth() + 1)).slice(-2);
+  let day = ("0" + d.getDate()).slice(-2);
+  let hour = d.getHours();
+  let minute = d.getMinutes();
+  let seconds = d.getSeconds();
+  // let millis = d.getMilliSeconds();
+
+  // prints date & time in YYYY-MM-DD HH:MM:SS format
+  return year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + seconds;
+}
 
 // Create a new instance of Logger, logging to the file at `log_file_path`
 // if `log_file_path` is null, log to STDOUT.
 var Logger = function(log_file_path) {
   // default write is STDOUT
-  this.write     = sys.print;
+  this.write     = console.log;
   this.log_level_index = 3;
   
   // if a path is given, try to write to it
@@ -49,7 +64,10 @@ var Logger = function(log_file_path) {
     log_file_path = path.normalize(log_file_path);
     this.stream = fs.createWriteStream(log_file_path, {flags: 'a', encoding: 'utf8', mode: 0666});
     this.stream.write("\n");
-    this.write = function(text) { this.stream.write(text); };
+    this.write = function(text) {
+      console.log(text);
+      this.stream.write(text); 
+    };
   }
 };
 
@@ -60,7 +78,7 @@ Logger.levels = ['fatal', 'error', 'warn', 'info', 'debug'];
 //    error [Sat Jun 12 2010 01:12:05 GMT-0400 (EDT)] message
 // 
 Logger.prototype.format = function(level, date, message) {
-  return [level, ' [', date, '] ', message].join('');
+  return [level, ' [', fmtDate(date), '] ', message].join('');
 };
 
 // Set the maximum log level. The default level is "info".
